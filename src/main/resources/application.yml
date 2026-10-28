@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: library-api
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/library_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+server:
+  port: ${SERVER_PORT:8081}
+library:
+  loan-period-days: ${LOAN_PERIOD_DAYS:14}
+  fine-per-day: ${FINE_PER_DAY:5.00}
+logging:
+  level:
+    org.hibernate.SQL: debug

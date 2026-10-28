@@ -1,0 +1,12 @@
+erDiagram
+  AUTHOR }o--o{ BOOK : writes
+  CATEGORY ||--o{ BOOK : categorizes
+  MEMBER ||--o{ BORROW_RECORD : has
+  BOOK ||--o{ BORROW_RECORD : appears_in
+  MEMBER ||--o| MEMBERSHIP_CARD : owns
+  AUTHOR { bigint id PK string name string bio string country }
+  CATEGORY { bigint id PK string name UK string description }
+  BOOK { bigint id PK string title string isbn UK int published_year int total_copies int available_copies bigint category_id FK }
+  MEMBER { bigint id PK string full_name string email UK string phone date membership_date string status }
+  MEMBERSHIP_CARD { bigint id PK string card_number UK date issue_date date expiry_date bigint member_id FK }
+  BORROW_RECORD { bigint id PK bigint book_id FK bigint member_id FK date borrow_date date due_date date return_date decimal fine_amount string status }

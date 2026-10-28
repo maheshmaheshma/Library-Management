@@ -1,0 +1,3 @@
+package com.mahesh.library.repository;
+import com.mahesh.library.entity.Author; import org.springframework.data.jpa.repository.*; import org.springframework.data.repository.query.Param; import java.util.*;
+public interface AuthorRepository extends JpaRepository<Author,Long> { @Query("select distinct a from Author a join a.books b where lower(a.name)=lower(:name)") List<Author> findAuthorsWithBooksByName(@Param("name") String name); @Query("select count(br) from BorrowRecord br join br.book b join b.authors a where a.id=:id and br.status in ('BORROWED','OVERDUE')") long countActiveBorrowingsForAuthor(@Param("id") Long id); }

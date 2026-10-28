@@ -1,0 +1,43 @@
+
+# Maven build output
+target/
+
+# Java compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+.factorypath
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.yaml
+
+# Logs
+*.log
+logs/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
