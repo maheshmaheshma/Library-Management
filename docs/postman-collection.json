@@ -1,1 +1,505 @@
-{"info":{"name":"Phase 9 Library API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"http://localhost:8080/api/v1"}],"item":[{"name":"Create category","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Fiction\",\n  \"description\": \"Fiction books\"\n}"},"url":"{{baseUrl}}/categories"}},{"name":"Create author","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"George Orwell\",\n  \"bio\": \"Writer\",\n  \"country\": \"United Kingdom\"\n}"},"url":"{{baseUrl}}/authors"}},{"name":"Create member","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"fullName\": \"Test Member\",\n  \"email\": \"member@example.com\",\n  \"phone\": \"9999999999\"\n}"},"url":"{{baseUrl}}/members"}},{"name":"Create book","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"title\": \"1984\",\n  \"isbn\": \"9780451524935\",\n  \"publishedYear\": 1949,\n  \"totalCopies\": 3,\n  \"categoryId\": 1,\n  \"authorIds\": [1]\n}"},"url":"{{baseUrl}}/books"}},{"name":"Issue member card","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"cardNumber\": \"CARD-001\",\n  \"issueDate\": \"2026-01-01\",\n  \"expiryDate\": \"2027-01-01\"\n}"},"url":"{{baseUrl}}/members/1/card"}},{"name":"Borrow book","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"bookId\": 1,\n  \"memberId\": 1\n}"},"url":"{{baseUrl}}/borrow"}},{"name":"Overdue","request":{"method":"GET","url":"{{baseUrl}}/borrow/overdue"}},{"name":"Return book","request":{"method":"PUT","url":"{{baseUrl}}/return/1"}}]}
+{
+ "info": {
+  "name": "Library API (Phase 9 + Phase 10 security)",
+  "description": "Run 'Login as admin' first: its test script stores accessToken/refreshToken, and every other request sends {{accessToken}} as a Bearer token. Set adminPassword to your ADMIN_PASSWORD.",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "bearer",
+  "bearer": [
+   {
+    "key": "token",
+    "value": "{{accessToken}}",
+    "type": "string"
+   }
+  ]
+ },
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "http://localhost:8081/api/v1"
+  },
+  {
+   "key": "adminUsername",
+   "value": "admin"
+  },
+  {
+   "key": "adminPassword",
+   "value": ""
+  },
+  {
+   "key": "accessToken",
+   "value": ""
+  },
+  {
+   "key": "refreshToken",
+   "value": ""
+  },
+  {
+   "key": "userId",
+   "value": ""
+  },
+  {
+   "key": "memberId",
+   "value": "1"
+  }
+ ],
+ "item": [
+  {
+   "name": "Auth",
+   "item": [
+    {
+     "name": "Register",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/auth/register",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"username\": \"alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"StrongPass1!\",\n  \"fullName\": \"Alice\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const body = pm.response.json();",
+         "if (pm.response.code === 200 || pm.response.code === 201) {",
+         "  pm.collectionVariables.set('accessToken', body.accessToken);",
+         "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+         "  pm.collectionVariables.set('userId', body.user.id);",
+         "}",
+         "pm.test('tokens returned', () => pm.expect(body.accessToken).to.be.a('string'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Login as admin",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/auth/login",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"usernameOrEmail\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const body = pm.response.json();",
+         "if (pm.response.code === 200 || pm.response.code === 201) {",
+         "  pm.collectionVariables.set('accessToken', body.accessToken);",
+         "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+         "  pm.collectionVariables.set('userId', body.user.id);",
+         "}",
+         "pm.test('tokens returned', () => pm.expect(body.accessToken).to.be.a('string'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Login as alice",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/auth/login",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"usernameOrEmail\": \"alice\",\n  \"password\": \"StrongPass1!\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const body = pm.response.json();",
+         "if (pm.response.code === 200 || pm.response.code === 201) {",
+         "  pm.collectionVariables.set('accessToken', body.accessToken);",
+         "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+         "  pm.collectionVariables.set('userId', body.user.id);",
+         "}",
+         "pm.test('tokens returned', () => pm.expect(body.accessToken).to.be.a('string'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Refresh",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/auth/refresh",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+      },
+      "auth": {
+       "type": "noauth"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const body = pm.response.json();",
+         "if (pm.response.code === 200 || pm.response.code === 201) {",
+         "  pm.collectionVariables.set('accessToken', body.accessToken);",
+         "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+         "  pm.collectionVariables.set('userId', body.user.id);",
+         "}",
+         "pm.test('tokens returned', () => pm.expect(body.accessToken).to.be.a('string'));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Logout",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/auth/logout",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Users",
+   "item": [
+    {
+     "name": "My profile",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/users/me"
+     }
+    },
+    {
+     "name": "Update my profile",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/users/me",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"fullName\": \"Alice A.\",\n  \"email\": \"alice@example.com\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Change my password",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/users/me/password",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"currentPassword\": \"StrongPass1!\",\n  \"newPassword\": \"NewStrong1!\"\n}"
+      }
+     }
+    },
+    {
+     "name": "List users (MANAGER/ADMIN)",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/users?search=&page=0&size=20"
+     }
+    },
+    {
+     "name": "Get user",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/users/{{userId}}"
+     }
+    },
+    {
+     "name": "Create user (ADMIN)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/users",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"username\": \"manager1\",\n  \"email\": \"manager1@example.com\",\n  \"password\": \"StrongPass1!\",\n  \"fullName\": \"Manager One\",\n  \"roles\": [\n    \"MANAGER\"\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Set roles (ADMIN)",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/users/{{userId}}/roles",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"roles\": [\n    \"USER\",\n    \"MANAGER\"\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "Unlock / enable (ADMIN)",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/users/{{userId}}/status",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"enabled\": true,\n  \"accountLocked\": false\n}"
+      }
+     }
+    },
+    {
+     "name": "Delete user (ADMIN)",
+     "request": {
+      "method": "DELETE",
+      "header": [],
+      "url": "{{baseUrl}}/users/{{userId}}"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Library",
+   "item": [
+    {
+     "name": "Create category",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/categories",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Fiction\",\n  \"description\": \"Fiction books\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Create author",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/authors",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"George Orwell\",\n  \"bio\": \"Writer\",\n  \"country\": \"United Kingdom\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Create book",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/books",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"title\": \"1984\",\n  \"isbn\": \"9780451524935\",\n  \"publishedYear\": 1949,\n  \"totalCopies\": 3,\n  \"categoryId\": 1,\n  \"authorIds\": [\n    1\n  ]\n}"
+      }
+     }
+    },
+    {
+     "name": "List books",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/books?page=0&size=10&sortBy=title&direction=asc"
+     }
+    },
+    {
+     "name": "Create member",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/members",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"fullName\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"phone\": \"9999999999\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Issue member card",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/members/{{memberId}}/card",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"cardNumber\": \"CARD-001\",\n  \"issueDate\": \"2026-01-01\",\n  \"expiryDate\": \"2027-12-31\"\n}"
+      }
+     }
+    },
+    {
+     "name": "Link account to member (MANAGER/ADMIN)",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/members/{{memberId}}/account",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"userId\": {{userId}}\n}"
+      }
+     }
+    },
+    {
+     "name": "My member record",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/members/me"
+     }
+    },
+    {
+     "name": "Borrow book",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/borrow",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"bookId\": 1,\n  \"memberId\": {{memberId}}\n}"
+      }
+     }
+    },
+    {
+     "name": "Active loans for member",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/borrow/member/{{memberId}}/active"
+     }
+    },
+    {
+     "name": "Return book",
+     "request": {
+      "method": "PUT",
+      "header": [],
+      "url": "{{baseUrl}}/return/1"
+     }
+    },
+    {
+     "name": "Overdue (MANAGER/ADMIN)",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/borrow/overdue"
+     }
+    }
+   ]
+  }
+ ]
+}

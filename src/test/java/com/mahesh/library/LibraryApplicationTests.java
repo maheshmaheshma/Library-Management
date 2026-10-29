@@ -1,3 +1,3 @@
 package com.mahesh.library;
-import org.junit.jupiter.api.Test; import org.springframework.boot.test.context.SpringBootTest;
-@SpringBootTest(properties={"spring.datasource.url=jdbc:h2:mem:library;MODE=PostgreSQL;DB_CLOSE_DELAY=-1","spring.datasource.driver-class-name=org.h2.Driver","spring.datasource.username=sa","spring.datasource.password=","spring.jpa.hibernate.ddl-auto=create-drop"}) class LibraryApplicationTests { @Test void contextLoads(){} }
+import org.junit.jupiter.api.Test; import org.springframework.boot.test.context.SpringBootTest; import org.springframework.test.context.ActiveProfiles;
+@SpringBootTest @ActiveProfiles("test") class LibraryApplicationTests { @Test void contextLoads(){} }

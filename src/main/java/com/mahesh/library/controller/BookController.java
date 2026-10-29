@@ -8,7 +8,9 @@ import com.mahesh.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.mahesh.library.usermgmt.security.AccessRules;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize(AccessRules.STAFF)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Add a book", description = "The category and authors must already exist.")
     public BookResponse create(@Valid @RequestBody BookRequest request) {
@@ -47,12 +50,14 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize(AccessRules.STAFF)
     @Operation(summary = "Update a book")
     public BookResponse update(@PathVariable Long id, @Valid @RequestBody BookRequest request) {
         return service.updateBook(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize(AccessRules.STAFF)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete a book")
     public void delete(@PathVariable Long id) {

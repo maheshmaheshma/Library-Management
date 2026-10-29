@@ -8,7 +8,9 @@ import com.mahesh.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.mahesh.library.usermgmt.security.AccessRules;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class AuthorController {
     }
 
     @PostMapping
+    @PreAuthorize(AccessRules.STAFF)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create an author")
     public AuthorResponse create(@Valid @RequestBody AuthorRequest request) {
@@ -47,12 +50,14 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize(AccessRules.STAFF)
     @Operation(summary = "Update an author")
     public AuthorResponse update(@PathVariable Long id, @Valid @RequestBody AuthorRequest request) {
         return service.updateAuthor(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize(AccessRules.STAFF)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete an author")
     public void delete(@PathVariable Long id) {

@@ -7,13 +7,16 @@ import com.mahesh.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.mahesh.library.usermgmt.security.AccessRules;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@PreAuthorize(AccessRules.STAFF)
 @RequestMapping("/api/v1")
 @Tag(name = "Borrowing", description = "Borrow and return books, and track overdue loans")
 public class BorrowController {
@@ -25,6 +28,7 @@ public class BorrowController {
     }
 
     @PostMapping("/borrow")
+    @PreAuthorize(AccessRules.STAFF + " or @memberAccess.isOwnMember(#request.memberId())")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Borrow a book",
             description = "The member must be active with a valid card, have fewer than 3 active loans "
@@ -34,6 +38,7 @@ public class BorrowController {
     }
 
     @PutMapping("/return/{borrowId}")
+    @PreAuthorize(AccessRules.STAFF + " or @memberAccess.ownsBorrow(#borrowId)")
     @Operation(summary = "Return a borrowed book",
             description = "Any fine for late return (daily rate x days late) is calculated and stored on the loan.")
     public BorrowResponse returnBook(@PathVariable Long borrowId) {
@@ -56,6 +61,7 @@ public class BorrowController {
     }
 
     @GetMapping("/borrow/member/{memberId}/active")
+    @PreAuthorize(AccessRules.STAFF + " or @memberAccess.isOwnMember(#memberId)")
     @Operation(summary = "List a member's current (not yet returned) loans")
     public List<BorrowResponse> activeForMember(@PathVariable Long memberId) {
         return service.activeByMember(memberId);

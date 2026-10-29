@@ -10,3 +10,9 @@ erDiagram
   MEMBER { bigint id PK string full_name string email UK string phone date membership_date string status }
   MEMBERSHIP_CARD { bigint id PK string card_number UK date issue_date date expiry_date bigint member_id FK }
   BORROW_RECORD { bigint id PK bigint book_id FK bigint member_id FK date borrow_date date due_date date return_date decimal fine_amount string status }
+  APP_USER }o--o{ ROLE : user_roles
+  APP_USER ||--o{ REFRESH_TOKEN : holds
+  APP_USER |o--o| MEMBER : acts_for
+  APP_USER { bigint id PK string username UK string email UK string password string full_name boolean enabled boolean account_locked int failed_login_attempts timestamp locked_until bigint member_id FK }
+  ROLE { bigint id PK string name UK }
+  REFRESH_TOKEN { bigint id PK string token UK bigint user_id FK timestamp expiry_date boolean revoked }

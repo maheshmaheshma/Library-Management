@@ -1,7 +1,9 @@
 package com.mahesh.library.exception;
-import com.mahesh.library.dto.ApiDtos.ErrorResponse; import org.springframework.http.*; import org.springframework.web.bind.MethodArgumentNotValidException; import org.springframework.web.bind.annotation.*; import org.springframework.dao.DataIntegrityViolationException; import java.time.LocalDate;
+import com.mahesh.library.dto.ApiDtos.ErrorResponse; import com.mahesh.library.usermgmt.exception.ApiException; import org.springframework.http.*; import org.springframework.web.bind.MethodArgumentNotValidException; import org.springframework.web.bind.annotation.*; import org.springframework.dao.DataIntegrityViolationException; import java.time.LocalDate;
 @RestControllerAdvice public class GlobalExceptionHandler {
  @ExceptionHandler(NotFoundException.class) ResponseEntity<ErrorResponse> notFound(NotFoundException e){return response(404,"Not Found",e.getMessage());}
+ // User-management errors carry their own status, so any controller that calls UserService gets a proper 4xx.
+ @ExceptionHandler(ApiException.class) ResponseEntity<ErrorResponse> api(ApiException e){return response(e.getStatus().value(),e.getStatus().getReasonPhrase(),e.getMessage());}
  @ExceptionHandler(ConflictException.class) ResponseEntity<ErrorResponse> conflict(ConflictException e){return response(409,"Conflict",e.getMessage());}
  @ExceptionHandler({IllegalArgumentException.class,IllegalStateException.class}) ResponseEntity<ErrorResponse> badRequest(RuntimeException e){return response(400,"Bad Request",e.getMessage());}
  @ExceptionHandler(MethodArgumentNotValidException.class) ResponseEntity<ErrorResponse> invalid(MethodArgumentNotValidException e){String msg=e.getBindingResult().getFieldErrors().stream().map(x->x.getField()+": "+x.getDefaultMessage()).findFirst().orElse("Invalid request");return response(400,"Validation Failed",msg);}

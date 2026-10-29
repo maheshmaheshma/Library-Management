@@ -21,6 +21,23 @@ server:
 library:
   loan-period-days: ${LOAN_PERIOD_DAYS:14}
   fine-per-day: ${FINE_PER_DAY:5.00}
+app:
+  jwt:
+    # Required, no default: startup fails if unset. Base64 of at least 32 random bytes (openssl rand -base64 32).
+    secret: ${JWT_SECRET}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+  security:
+    max-failed-attempts: ${MAX_FAILED_LOGIN_ATTEMPTS:5}
+    # An account locked by failed logins unlocks itself after this long; an admin can unlock it sooner.
+    lockout-duration-ms: ${LOCKOUT_DURATION_MS:900000}
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    email: ${ADMIN_EMAIL:admin@example.com}
+    # Required, no default: startup fails if unset or weak.
+    password: ${ADMIN_PASSWORD}
 logging:
   level:
     org.hibernate.SQL: debug
