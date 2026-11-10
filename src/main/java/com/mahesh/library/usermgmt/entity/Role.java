@@ -6,24 +6,32 @@ import jakarta.persistence.*;
 @Table(name = "roles")
 public class Role {
 
-    public static final String USER = "ROLE_USER";
-    public static final String MANAGER = "ROLE_MANAGER";
-    public static final String ADMIN = "ROLE_ADMIN";
+	public static final String USER = "ROLE_USER";
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	public static final String MANAGER = "ROLE_MANAGER";
 
-    @Column(nullable = false, unique = true, length = 30)
-    private String name;
+	public static final String ADMIN = "ROLE_ADMIN";
 
-    protected Role() {
-    }
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    public Role(String name) {
-        this.name = name;
-    }
+	@Column(nullable = false, unique = true, length = 30)
+	private String name;
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
+	protected Role() {
+	}
+
+	public Role(String name) {
+		this.name = name;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 }

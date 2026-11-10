@@ -17,47 +17,47 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Categories", description = "Create and manage book categories")
 public class CategoryController {
 
-    private final LibraryService service;
+	private final LibraryService service;
 
-    public CategoryController(LibraryService service) {
-        this.service = service;
-    }
+	public CategoryController(LibraryService service) {
+		this.service = service;
+	}
 
-    @PostMapping
-    @PreAuthorize(AccessRules.STAFF)
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a category")
-    public CategoryResponse create(@Valid @RequestBody CategoryRequest request) {
-        return service.createCategory(request);
-    }
+	@PostMapping
+	@PreAuthorize(AccessRules.STAFF)
+	@ResponseStatus(HttpStatus.CREATED)
+	@Operation(summary = "Create a category")
+	public CategoryResponse create(@Valid @RequestBody CategoryRequest request) {
+		return service.createCategory(request);
+	}
 
-    @GetMapping
-    @Operation(summary = "List categories (paginated)")
-    public PageResponse<CategoryResponse> list(@RequestParam(defaultValue = "0") int page,
-                                               @RequestParam(defaultValue = "10") int size,
-                                               @RequestParam(defaultValue = "id") String sortBy,
-                                               @RequestParam(defaultValue = "asc") String direction) {
-        return service.listCategories(page, size, sortBy, direction);
-    }
+	@GetMapping
+	@Operation(summary = "List categories (paginated)")
+	public PageResponse<CategoryResponse> list(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "id") String sortBy,
+			@RequestParam(defaultValue = "asc") String direction) {
+		return service.listCategories(page, size, sortBy, direction);
+	}
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get a category by id")
-    public CategoryResponse get(@PathVariable Long id) {
-        return service.getCategory(id);
-    }
+	@GetMapping("/{id}")
+	@Operation(summary = "Get a category by id")
+	public CategoryResponse get(@PathVariable Long id) {
+		return service.getCategory(id);
+	}
 
-    @PutMapping("/{id}")
-    @PreAuthorize(AccessRules.STAFF)
-    @Operation(summary = "Update a category")
-    public CategoryResponse update(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
-        return service.updateCategory(id, request);
-    }
+	@PutMapping("/{id}")
+	@PreAuthorize(AccessRules.STAFF)
+	@Operation(summary = "Update a category")
+	public CategoryResponse update(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
+		return service.updateCategory(id, request);
+	}
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize(AccessRules.STAFF)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Delete a category")
-    public void delete(@PathVariable Long id) {
-        service.deleteCategory(id);
-    }
+	@DeleteMapping("/{id}")
+	@PreAuthorize(AccessRules.STAFF)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@Operation(summary = "Delete a category")
+	public void delete(@PathVariable Long id) {
+		service.deleteCategory(id);
+	}
+
 }

@@ -6,11 +6,12 @@ import com.mahesh.library.usermgmt.dto.RegisterRequest;
 
 public interface AuthService {
 
-    AuthResponse register(RegisterRequest request);
+	AuthResponse register(RegisterRequest request);
 
-    AuthResponse login(LoginRequest request);
+	AuthResponse login(LoginRequest request);
 
-    AuthResponse refresh(String refreshToken);
+	AuthResponse refresh(String refreshToken);
 
-    void logout(String refreshToken, Long currentUserId);
+	void logout(String refreshToken, Long currentUserId);
+
 }

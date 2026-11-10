@@ -8,28 +8,63 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Collection;
 
-/** The authenticated user. SpEL can use authentication.principal.id and authentication.principal.memberId. */
+/**
+ * The authenticated user. SpEL can use authentication.principal.id and
+ * authentication.principal.memberId.
+ */
 public class CustomUserPrincipal implements UserDetails {
 
-    private final User user;
+	private final User user;
 
-    public CustomUserPrincipal(User user) {
-        this.user = user;
-    }
+	public CustomUserPrincipal(User user) {
+		this.user = user;
+	}
 
-    public Long getId() { return user.getId(); }
-    public Long getMemberId() { return user.getMemberId(); }
-    public User getUser() { return user; }
+	public Long getId() {
+		return user.getId();
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getName())).toList();
-    }
+	public Long getMemberId() {
+		return user.getMemberId();
+	}
 
-    @Override public String getPassword() { return user.getPassword(); }
-    @Override public String getUsername() { return user.getUsername(); }
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return !user.isLockedAt(Instant.now()); }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return user.isEnabled(); }
+	public User getUser() {
+		return user;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return user.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getName())).toList();
+	}
+
+	@Override
+	public String getPassword() {
+		return user.getPassword();
+	}
+
+	@Override
+	public String getUsername() {
+		return user.getUsername();
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return !user.isLockedAt(Instant.now());
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return user.isEnabled();
+	}
+
 }
