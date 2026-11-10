@@ -142,6 +142,7 @@ All paginated list endpoints accept `page`, `size`, `sortBy`, `direction`. Examp
 - Run `mvn test` and exercise all endpoints locally before submission.
 - The assignment requires at least 8 Mockito service tests and 3 `@DataJpaTest` repository tests. These are required deliverables and must be present and passing before submission.
 - Phase 9 coverage is in `LibraryServiceTest`, `CategoryRepositoryTest`, `BookRepositoryTest`, and `BorrowRecordRepositoryTest`.
+- Run only the Phase 9 coverage with `mvn -Dtest=LibraryServiceTest,*RepositoryTest test`.
 - The optional author filter is wired through a dedicated paginated JPQL query. When author is supplied, the current query filters by title and author; combine with category filtering in a future refinement if you need all three filters simultaneously.
 - For PostgreSQL-grade concurrent borrow safety, consider pessimistic locking on book/member rows or retry handling for optimistic-lock conflicts. `@Version` helps detect concurrent updates but does not by itself guarantee a friendly API response.
 - `OVERDUE` status is refreshed by `POST /api/v1/borrow/refresh-overdue`; the assignment's optional scheduled job is not enabled automatically.
