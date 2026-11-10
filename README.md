@@ -154,7 +154,7 @@ Security tests (H2, profile `test`): `JwtServiceTest` (generate, validate, expir
 
 ## Git workflow
 
-- `main` contains reviewed releases; feature work starts from `develop`.
+- `main` contains reviewed releases; all feature work starts from `develop`.
 - Create one feature branch per change and open a pull request into `develop`.
 - Keep commits focused with a conventional prefix such as `feat:`, `fix:`, `test:`, or `docs:`.
 - Phase 9 is tagged `v1.0.0`; Phase 10 is tagged `v2.0.0`. Releases are published from those tags.
