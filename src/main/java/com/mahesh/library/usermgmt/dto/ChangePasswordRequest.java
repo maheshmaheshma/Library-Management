@@ -1,8 +1,7 @@
 package com.mahesh.library.usermgmt.dto;
 
 import jakarta.validation.constraints.*;
+import com.mahesh.library.usermgmt.validation.Password;
 
-public record ChangePasswordRequest(@NotBlank String currentPassword,
-		@NotBlank @Pattern(regexp = ValidationRules.PASSWORD,
-				message = ValidationRules.PASSWORD_MESSAGE) String newPassword) {
+public record ChangePasswordRequest(@NotBlank String currentPassword, @NotBlank @Password String newPassword) {
 }

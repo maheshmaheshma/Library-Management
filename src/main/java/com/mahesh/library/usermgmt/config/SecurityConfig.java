@@ -30,7 +30,7 @@ import java.util.List;
 public class SecurityConfig {
 
 	private static final String[] PUBLIC = { "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
-			"/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error" };
+			"/error" };
 
 	private static final String[] CATALOGUE = { "/api/v1/books", "/api/v1/books/**", "/api/v1/authors",
 			"/api/v1/authors/**", "/api/v1/categories", "/api/v1/categories/**" };
@@ -48,7 +48,8 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, JwtService jwtService,
 			CustomUserDetailsService userDetailsService, CustomAuthEntryPoint entryPoint,
-			CustomAccessDeniedHandler deniedHandler) throws Exception {
+			CustomAccessDeniedHandler deniedHandler, @Value("${app.swagger.enabled:false}") boolean swaggerEnabled)
+			throws Exception {
 		// CSRF attacks ride on credentials the browser attaches automatically (cookies).
 		// This API is stateless and
 		// reads the JWT only from the Authorization header, which a cross-site page
@@ -63,43 +64,44 @@ public class SecurityConfig {
 			// URL rules are the coarse first line; @PreAuthorize on controller methods is
 			// the second.
 			// The first matching rule wins, so specific rules come before broad ones.
-			.authorizeHttpRequests(a -> a.requestMatchers(HttpMethod.OPTIONS, "/**")
-				.permitAll()
-				.requestMatchers(PUBLIC)
-				.permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/v1/auth/logout")
-				.authenticated()
-				// user and role administration
-				.requestMatchers("/api/v1/users/me", "/api/v1/users/me/**")
-				.hasAnyRole("USER", "MANAGER", "ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/v1/users")
-				.hasAnyRole("MANAGER", "ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/v1/users/*")
-				.authenticated() // own record or staff: @PreAuthorize
-				.requestMatchers("/api/v1/users", "/api/v1/users/**")
-				.hasRole("ADMIN")
-				// catalogue: anyone signed in may read, only staff may change
-				.requestMatchers(HttpMethod.GET, CATALOGUE)
-				.authenticated()
-				.requestMatchers(CATALOGUE)
-				.hasAnyRole("MANAGER", "ADMIN")
-				// members: staff only, except a user's own linked member record
-				.requestMatchers(HttpMethod.GET, "/api/v1/members/me")
-				.authenticated()
-				.requestMatchers("/api/v1/members", "/api/v1/members/**")
-				.hasAnyRole("MANAGER", "ADMIN")
-				// borrow/return: USER for their own member record (checked by
-				// @memberAccess), or staff
-				.requestMatchers(HttpMethod.POST, "/api/v1/borrow")
-				.authenticated()
-				.requestMatchers(HttpMethod.PUT, "/api/v1/return/*")
-				.authenticated()
-				.requestMatchers(HttpMethod.GET, "/api/v1/borrow/member/*/active")
-				.authenticated()
-				.requestMatchers("/api/v1/borrow", "/api/v1/borrow/**")
-				.hasAnyRole("MANAGER", "ADMIN")
-				.anyRequest()
-				.authenticated())
+			.authorizeHttpRequests(a -> {
+				a.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().requestMatchers(PUBLIC).permitAll();
+				if (swaggerEnabled)
+					a.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll();
+				a.requestMatchers(HttpMethod.POST, "/api/v1/auth/logout")
+					.authenticated()
+					// user and role administration
+					.requestMatchers("/api/v1/users/me", "/api/v1/users/me/**")
+					.hasAnyRole("USER", "MANAGER", "ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/v1/users")
+					.hasAnyRole("MANAGER", "ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/v1/users/*")
+					.authenticated() // own record or staff: @PreAuthorize
+					.requestMatchers("/api/v1/users", "/api/v1/users/**")
+					.hasRole("ADMIN")
+					// catalogue: anyone signed in may read, only staff may change
+					.requestMatchers(HttpMethod.GET, CATALOGUE)
+					.authenticated()
+					.requestMatchers(CATALOGUE)
+					.hasAnyRole("MANAGER", "ADMIN")
+					// members: staff only, except a user's own linked member record
+					.requestMatchers(HttpMethod.GET, "/api/v1/members/me")
+					.authenticated()
+					.requestMatchers("/api/v1/members", "/api/v1/members/**")
+					.hasAnyRole("MANAGER", "ADMIN")
+					// borrow/return: USER for their own member record (checked by
+					// @memberAccess), or staff
+					.requestMatchers(HttpMethod.POST, "/api/v1/borrow")
+					.authenticated()
+					.requestMatchers(HttpMethod.PUT, "/api/v1/return/*")
+					.authenticated()
+					.requestMatchers(HttpMethod.GET, "/api/v1/borrow/member/*/active")
+					.authenticated()
+					.requestMatchers("/api/v1/borrow", "/api/v1/borrow/**")
+					.hasAnyRole("MANAGER", "ADMIN")
+					.anyRequest()
+					.authenticated();
+			})
 			.addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService),
 					UsernamePasswordAuthenticationFilter.class);
 		return http.build();

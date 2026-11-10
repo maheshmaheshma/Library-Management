@@ -5,6 +5,7 @@ import com.mahesh.library.usermgmt.dto.LoginRequest;
 import com.mahesh.library.usermgmt.dto.RefreshRequest;
 import com.mahesh.library.usermgmt.dto.RegisterRequest;
 import com.mahesh.library.usermgmt.security.CustomUserPrincipal;
+import com.mahesh.library.usermgmt.security.AuthRateLimiter;
 import com.mahesh.library.usermgmt.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
 
@@ -23,15 +26,19 @@ public class AuthController {
 
 	private final AuthService authService;
 
-	public AuthController(AuthService authService) {
+	private final AuthRateLimiter rateLimiter;
+
+	public AuthController(AuthService authService, AuthRateLimiter rateLimiter) {
 		this.authService = authService;
+		this.rateLimiter = rateLimiter;
 	}
 
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
 	@SecurityRequirements
 	@Operation(summary = "Register a new account with the USER role and receive tokens")
-	public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+	public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletRequest httpRequest) {
+		rateLimiter.check("register", httpRequest.getRemoteAddr());
 		return authService.register(request);
 	}
 
@@ -39,7 +46,8 @@ public class AuthController {
 	@SecurityRequirements
 	@Operation(summary = "Log in with username or email",
 			description = "After 5 failed attempts the account is locked for 15 minutes or until an admin unlocks it.")
-	public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+	public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+		rateLimiter.check("login", httpRequest.getRemoteAddr());
 		return authService.login(request);
 	}
 
@@ -47,14 +55,16 @@ public class AuthController {
 	@SecurityRequirements
 	@Operation(summary = "Exchange a refresh token for a new token pair",
 			description = "Refresh tokens are single-use. Reusing a spent token revokes all of the user's refresh tokens.")
-	public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
+	public AuthResponse refresh(@Valid @RequestBody RefreshRequest request, HttpServletRequest httpRequest) {
+		rateLimiter.check("refresh", httpRequest.getRemoteAddr());
 		return authService.refresh(request.refreshToken());
 	}
 
 	@PostMapping("/logout")
 	@Operation(summary = "Revoke a refresh token belonging to the current user")
 	public Map<String, String> logout(@AuthenticationPrincipal CustomUserPrincipal principal,
-			@Valid @RequestBody RefreshRequest request) {
+			@Valid @RequestBody RefreshRequest request, HttpServletRequest httpRequest) {
+		rateLimiter.check("logout", httpRequest.getRemoteAddr());
 		authService.logout(request.refreshToken(), principal.getId());
 		return Map.of("message", "Logged out");
 	}

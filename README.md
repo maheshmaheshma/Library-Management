@@ -30,7 +30,7 @@ export ADMIN_PASSWORD='Choose-A-Strong1!'         # required
 mvn spring-boot:run
 ```
 
-Swagger UI: http://localhost:8081/swagger-ui.html (click **Authorize** and paste an `accessToken`)
+Swagger UI is available only with the `dev` profile: `mvn spring-boot:run -Dspring-boot.run.profiles=dev`, then open http://localhost:8081/swagger-ui.html (click **Authorize** and paste an `accessToken`).
 
 Configuration is environment-driven. `JWT_SECRET` and `ADMIN_PASSWORD` have no defaults: the application refuses to start without them, so no deployment can run on a secret that is published in the repository. Hibernate uses `ddl-auto: update` as required for development. For production, use migrations (Flyway is a bonus task).
 

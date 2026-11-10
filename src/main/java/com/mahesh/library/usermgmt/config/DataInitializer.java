@@ -27,7 +27,7 @@ public class DataInitializer {
 	CommandLineRunner seedRolesAndAdmin(RoleRepository roles, UserRepository users, PasswordEncoder encoder,
 			TransactionTemplate transaction, @Value("${app.admin.username}") String username,
 			@Value("${app.admin.email}") String email, @Value("${app.admin.password}") String password) {
-		if (password == null || !password.matches(ValidationRules.PASSWORD)) {
+		if (!ValidationRules.isValidPassword(password)) {
 			throw new IllegalStateException("ADMIN_PASSWORD must be set and " + ValidationRules.PASSWORD_MESSAGE);
 		}
 		// TransactionTemplate rather than @Transactional: a lambda calling a method on

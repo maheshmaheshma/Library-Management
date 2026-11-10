@@ -6,6 +6,7 @@ import com.mahesh.library.dto.PageResponse;
 import com.mahesh.library.entity.*;
 import com.mahesh.library.exception.*;
 import com.mahesh.library.repository.*;
+import com.mahesh.library.usermgmt.repository.UserRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +32,10 @@ public class LibraryService {
 
 	private final LibraryProperties props;
 
+	private final UserRepository users;
+
 	public LibraryService(AuthorRepository a, CategoryRepository c, BookRepository b, MemberRepository m,
-			MembershipCardRepository mc, BorrowRecordRepository br, LibraryProperties p) {
+			MembershipCardRepository mc, BorrowRecordRepository br, LibraryProperties p, UserRepository u) {
 		authors = a;
 		categories = c;
 		books = b;
@@ -40,6 +43,7 @@ public class LibraryService {
 		cards = mc;
 		borrows = br;
 		props = p;
+		users = u;
 	}
 
 	private <T> T require(Optional<T> value, String type, Long id) {
@@ -246,6 +250,8 @@ public class LibraryService {
 	@Transactional
 	public void deleteMember(Long id) {
 		Member m = require(members.findById(id), "Member", id);
+		if (users.existsByMemberId(id))
+			throw new ConflictException("Cannot delete a member linked to a login account; unlink the account first");
 		if (members.countActiveBorrowings(id) > 0)
 			throw new ConflictException("Cannot delete a member with active borrowings");
 		members.delete(m);

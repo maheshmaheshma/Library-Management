@@ -82,6 +82,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private User newUser(String username, String email, String password, String fullName, Set<Role> roleSet) {
+		if (!ValidationRules.isValidPassword(password))
+			throw new BadRequestException(ValidationRules.PASSWORD_MESSAGE + " and no more than 72 UTF-8 bytes");
 		String name = normalize(username);
 		String mail = normalize(email);
 		if (users.existsByUsername(name))
@@ -135,6 +137,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void changePassword(Long id, ChangePasswordRequest r) {
+		if (!ValidationRules.isValidPassword(r.newPassword()))
+			throw new BadRequestException(ValidationRules.PASSWORD_MESSAGE + " and no more than 72 UTF-8 bytes");
 		User u = getById(id);
 		if (!encoder.matches(r.currentPassword(), u.getPassword()))
 			throw new BadRequestException("Current password is incorrect");
@@ -236,20 +240,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void recordFailedLogin(User u) {
-		int count = u.getFailedLoginAttempts() + 1;
-		u.setFailedLoginAttempts(count);
-		if (count >= maxFailedAttempts) {
-			// Temporary, so an attacker guessing passwords cannot lock an account (even
-			// the only admin) forever.
-			u.setAccountLocked(true);
-			u.setLockedUntil(Instant.now().plus(lockoutDuration));
-		}
+		Instant now = Instant.now();
+		users.recordFailedLogin(u.getId(), maxFailedAttempts, now.plus(lockoutDuration), now);
 	}
 
 	@Override
 	@Transactional
 	public void recordSuccessfulLogin(User u) {
-		u.setFailedLoginAttempts(0);
+		users.resetFailedLoginAttempts(u.getId());
 	}
 
 }

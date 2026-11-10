@@ -1,6 +1,7 @@
 package com.mahesh.library.usermgmt.dto;
 
 import jakarta.validation.constraints.*;
+import com.mahesh.library.usermgmt.validation.Password;
 
 import java.util.List;
 
@@ -11,8 +12,6 @@ import java.util.List;
 public record CreateUserRequest(
 		@NotBlank @Pattern(regexp = ValidationRules.USERNAME,
 				message = ValidationRules.USERNAME_MESSAGE) String username,
-		@NotBlank @Email @Size(max = 100) String email,
-		@NotBlank @Pattern(regexp = ValidationRules.PASSWORD,
-				message = ValidationRules.PASSWORD_MESSAGE) String password,
+		@NotBlank @Email @Size(max = 100) String email, @NotBlank @Password String password,
 		@NotBlank @Size(max = 100) String fullName, @NotEmpty List<@NotBlank String> roles) {
 }

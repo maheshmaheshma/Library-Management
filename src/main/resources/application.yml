@@ -18,6 +18,11 @@ spring:
     default-property-inclusion: non_null
 server:
   port: ${SERVER_PORT:8081}
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
 library:
   loan-period-days: ${LOAN_PERIOD_DAYS:14}
   fine-per-day: ${FINE_PER_DAY:5.00}
@@ -31,6 +36,8 @@ app:
     max-failed-attempts: ${MAX_FAILED_LOGIN_ATTEMPTS:5}
     # An account locked by failed logins unlocks itself after this long; an admin can unlock it sooner.
     lockout-duration-ms: ${LOCKOUT_DURATION_MS:900000}
+    auth-rate-limit-max-requests: ${AUTH_RATE_LIMIT_MAX_REQUESTS:20}
+    auth-rate-limit-window-ms: ${AUTH_RATE_LIMIT_WINDOW_MS:60000}
   cors:
     allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
   admin:
@@ -38,6 +45,3 @@ app:
     email: ${ADMIN_EMAIL:admin@example.com}
     # Required, no default: startup fails if unset or weak.
     password: ${ADMIN_PASSWORD}
-logging:
-  level:
-    org.hibernate.SQL: debug

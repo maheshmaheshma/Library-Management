@@ -134,7 +134,9 @@ class LibraryAccessIntegrationTest extends IntegrationTestSupport {
 		perform(managerToken, put("/api/v1/members/999999/account"), "{\"userId\":" + otherUser + "}",
 				status().isNotFound());
 
-		perform(managerToken, delete("/api/v1/members/" + aliceMemberId), null, status().isConflict());
+		perform(managerToken, delete("/api/v1/members/" + aliceMemberId), null, status().isConflict(),
+				jsonPath("$.message")
+					.value("Cannot delete a member linked to a login account; unlink the account first"));
 		perform(managerToken, delete("/api/v1/members/" + aliceMemberId + "/account"), null, status().isNoContent());
 		perform(managerToken, delete("/api/v1/members/" + aliceMemberId), null, status().isNoContent());
 	}

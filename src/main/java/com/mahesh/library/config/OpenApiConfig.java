@@ -7,8 +7,10 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Configuration
+@ConditionalOnProperty(prefix = "app.swagger", name = "enabled", havingValue = "true")
 public class OpenApiConfig {
 
 	// "bearerAuth" adds Swagger UI's Authorize button; paste the accessToken from

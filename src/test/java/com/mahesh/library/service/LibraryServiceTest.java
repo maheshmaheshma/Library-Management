@@ -18,6 +18,7 @@ import com.mahesh.library.repository.BorrowRecordRepository;
 import com.mahesh.library.repository.CategoryRepository;
 import com.mahesh.library.repository.MemberRepository;
 import com.mahesh.library.repository.MembershipCardRepository;
+import com.mahesh.library.usermgmt.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,11 +60,14 @@ class LibraryServiceTest {
 	@Mock
 	LibraryProperties properties;
 
+	@Mock
+	UserRepository users;
+
 	private LibraryService service;
 
 	@BeforeEach
 	void setUp() {
-		service = new LibraryService(authors, categories, books, members, cards, borrows, properties);
+		service = new LibraryService(authors, categories, books, members, cards, borrows, properties, users);
 	}
 
 	@Test

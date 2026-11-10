@@ -90,6 +90,35 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
 	}
 
 	@Test
+	void concurrentFailedLoginsAtomicallyReachTheLockoutThreshold() throws Exception {
+		String name = unique("parallel");
+		long userId = saveUser(name, Role.USER).getId();
+		int requests = 8;
+		ExecutorService pool = Executors.newFixedThreadPool(requests);
+		CountDownLatch start = new CountDownLatch(1);
+		List<Future<Integer>> responses = new ArrayList<>();
+		for (int i = 0; i < requests; i++) {
+			responses.add(pool.submit(() -> {
+				start.await();
+				return mvc
+					.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+						.content(loginBody(name, "Wrong1!pass")))
+					.andReturn()
+					.getResponse()
+					.getStatus();
+			}));
+		}
+		start.countDown();
+		for (Future<Integer> response : responses)
+			assertEquals(401, response.get(10, TimeUnit.SECONDS));
+		pool.shutdownNow();
+
+		User locked = userRepository.findById(userId).orElseThrow();
+		assertTrue(locked.isAccountLocked());
+		assertEquals(5, locked.getFailedLoginAttempts());
+	}
+
+	@Test
 	void failedLoginLockExpiresOnItsOwnSoNoAccountIsLockedForever() throws Exception {
 		String name = unique("expire");
 		saveUser(name, Role.ADMIN);
